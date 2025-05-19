@@ -12,6 +12,15 @@ import auditRoutes from "./routes/audit.js";
 dotenv.config();
 const app = express();
 
+// CSP — защита от XSS
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self';"
+  );
+  next();
+});
+
 // Получаем текущую директорию
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,12 +39,12 @@ app.use("/api/relays", relayRoutes);
 app.use("/api/audit", auditRoutes);
 
 // Подключение к MongoDB
-connect(process.env.MONGODB_URI || "mongodb://localhost:27017/RelayAudit", { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true 
+connect(process.env.MONGODB_URI || "mongodb://localhost:27017/RelayAudit", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 })
-.then(() => console.log("✅ MongoDB подключена"))
-.catch(err => console.error("❌ Ошибка подключения к MongoDB:", err));
+  .then(() => console.log("✅ MongoDB подключена"))
+  .catch(err => console.error("❌ Ошибка подключения к MongoDB:", err));
 
 // Запуск сервера
 const PORT = process.env.PORT || 5000;
